@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, GithubAuthProvider } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, GithubAuthProvider, FacebookAuthProvider } from "firebase/auth";
 import { useAuth } from "@/lib/firebase";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -101,6 +101,32 @@ const LoginForm = () => {
     }
   };
 
+    const handleFacebookSignIn = async () => {
+        if (!auth) {
+            toast({
+                title: "Authentication not initialized.",
+                description: "Please try again later.",
+                variant: "destructive",
+            });
+            return;
+        }
+        try {
+            const provider = new FacebookAuthProvider();
+            await signInWithPopup(auth, provider);
+            toast({
+                title: "Login successful!",
+                description: "Redirecting to the game...",
+            });
+            router.push("/snake");
+        } catch (error: any) {
+            toast({
+                title: "Login failed.",
+                description: error.message,
+                variant: "destructive",
+            });
+        }
+    };
+
   return (
     <div className="flex flex-col gap-4 w-80">
       <form onSubmit={handleEmailSignIn} className="flex flex-col gap-2">
@@ -123,6 +149,12 @@ const LoginForm = () => {
       </Button>
       <Button onClick={handleGitHubSignIn} variant="secondary">
         Sign in with GitHub
+      </Button>
+        <Button onClick={handleFacebookSignIn} variant="secondary">
+            Sign in with Facebook
+        </Button>
+      <Button onClick={() => router.push("/register")} className="mt-2" variant="secondary">
+        Register
       </Button>
     </div>
   );
