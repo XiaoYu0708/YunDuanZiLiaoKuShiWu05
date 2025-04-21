@@ -27,12 +27,21 @@ const SnakeGame = () => {
   const [direction, setDirection] = useState({ x: 1, y: 0 });
   const [gameOver, setGameOver] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [score, setScore] = useState(0);
+  const [highScore, setHighScore] = useState(0);
 
   useEffect(() => {
     if (!auth?.currentUser) {
       router.push("/");
     }
   }, [auth, router]);
+
+  useEffect(() => {
+    const storedHighScore = localStorage.getItem('highScore');
+    if (storedHighScore) {
+      setHighScore(parseInt(storedHighScore));
+    }
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -69,6 +78,7 @@ const SnakeGame = () => {
       if (isFoodEaten(newSnake[0])) {
         setSnake(extendSnake(newSnake));
         setFood(generateFood());
+        setScore(prevScore => prevScore + 1);
       } else {
         setSnake(newSnake.slice(0, -1));
       }
@@ -79,6 +89,15 @@ const SnakeGame = () => {
     const intervalId = setInterval(gameLoop, GAME_SPEED);
     return () => clearInterval(intervalId);
   }, [snake, food, direction, gameOver]);
+
+  useEffect(() => {
+    if (gameOver) {
+      if (score > highScore) {
+        setHighScore(score);
+        localStorage.setItem('highScore', score.toString());
+      }
+    }
+  }, [gameOver, score, highScore]);
 
   const moveSnake = () => {
     const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
@@ -147,9 +166,20 @@ const SnakeGame = () => {
     }
   };
 
+  const resetGame = () => {
+    setSnake(SNAKE_START);
+    setFood(FOOD_START);
+    setDirection({ x: 1, y: 0 });
+    setGameOver(false);
+    setScore(0);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 left-4 text-lg font-bold">
+        {auth?.currentUser?.displayName || "User"}
+      </div>
+       <div className="absolute top-4 right-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
@@ -171,6 +201,12 @@ const SnakeGame = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <div className="text-lg font-semibold mb-2">
+        Score: {score}
+      </div>
+      <div className="text-lg font-semibold mb-2">
+        High Score: {highScore}
+      </div>
       <canvas
         ref={canvasRef}
         width={GRID_SIZE * GRID_SIZE}
@@ -180,6 +216,9 @@ const SnakeGame = () => {
       {gameOver && (
         <div className="text-red-500 text-2xl mt-4">
           Game Over!
+          <Button onClick={resetGame} className="mt-2">
+            Play Again
+          </Button>
         </div>
       )}
       <Button onClick={() => router.push("/")}>
