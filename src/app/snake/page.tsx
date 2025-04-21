@@ -246,9 +246,6 @@ const SnakeGame = () => {
           </Button>
         </div>
       )}
-      <Button onClick={() => router.push("/")}>
-        Back to Login
-      </Button>
     </div>
   );
 };
