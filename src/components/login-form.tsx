@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, GithubAuthProvider } from "firebase/auth";
 import { useAuth } from "@/lib/firebase";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -75,6 +75,32 @@ const LoginForm = () => {
     }
   };
 
+  const handleGitHubSignIn = async () => {
+    if (!auth) {
+      toast({
+        title: "Authentication not initialized.",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      const provider = new GithubAuthProvider();
+      await signInWithPopup(auth, provider);
+      toast({
+        title: "Login successful!",
+        description: "Redirecting to the game...",
+      });
+      router.push("/snake");
+    } catch (error: any) {
+      toast({
+        title: "Login failed.",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 w-80">
       <form onSubmit={handleEmailSignIn} className="flex flex-col gap-2">
@@ -94,6 +120,9 @@ const LoginForm = () => {
       </form>
       <Button onClick={handleGoogleSignIn} variant="secondary">
         Sign in with Google
+      </Button>
+      <Button onClick={handleGitHubSignIn} variant="secondary">
+        Sign in with GitHub
       </Button>
     </div>
   );
