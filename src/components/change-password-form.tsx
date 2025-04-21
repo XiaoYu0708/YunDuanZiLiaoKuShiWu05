@@ -1,4 +1,4 @@
-;"use client";
+"use client";
 
 import { useState } from "react";
 import { updatePassword } from "firebase/auth";
@@ -43,3 +43,4 @@ const ChangePasswordForm = () => {
 };
 
 export default ChangePasswordForm;
+

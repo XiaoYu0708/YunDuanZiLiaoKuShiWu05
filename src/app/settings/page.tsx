@@ -1,4 +1,4 @@
-;"use client";
+"use client";
 
 import ChangeDisplayNameForm from "@/components/change-display-name-form";
 import ChangePasswordForm from "@/components/change-password-form";
