@@ -1,4 +1,3 @@
-
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -32,9 +31,19 @@ const LoginForm = () => {
       });
       router.push("/snake");
     } catch (error: any) {
+      let errorMessage = "Login failed.";
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = "No user found with that email.";
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = "Incorrect password.";
+      } else if (error.code === 'auth/invalid-credential'){
+        errorMessage = "Invalid login credentials. Please double-check your email and password.";
+      } else {
+        errorMessage = error.message;
+      }
       toast({
         title: "Login failed.",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     }
