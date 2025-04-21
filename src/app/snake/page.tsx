@@ -130,7 +130,13 @@ const SnakeGame = () => {
   };
 
   const checkCollision = (head: { x: number, y: number }) => {
-    if (head.x * GRID_SIZE >= canvasRef.current!.width || head.x < 0 || head.y * GRID_SIZE >= canvasRef.current!.height || head.y < 0) {
+    const canvas = canvasRef.current;
+    if (!canvas) return false;
+
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
+    if (head.x * GRID_SIZE >= canvasWidth || head.x < 0 || head.y * GRID_SIZE >= canvasHeight || head.y < 0) {
       return true;
     }
 
