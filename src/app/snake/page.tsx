@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Settings } from "lucide-react";
-import { doc, getFirestore, updateDoc, getDoc } from "firebase/firestore";
+import { doc, getFirestore, updateDoc, getDoc, setDoc } from "firebase/firestore";
 
 const GRID_SIZE = 20;
 const SNAKE_START = [{ x: 8, y: 8 }];
@@ -48,7 +48,7 @@ const SnakeGame = () => {
           setHighScore(docSnap.data().highScore || 0);
         } else {
           // If the document doesn't exist, create it
-          await updateDoc(userDocRef, {
+          await setDoc(userDocRef, {
             highScore: 0,
           });
           setHighScore(0);
@@ -254,3 +254,4 @@ const SnakeGame = () => {
 };
 
 export default SnakeGame;
+
