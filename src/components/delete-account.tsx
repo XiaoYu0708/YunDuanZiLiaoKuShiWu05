@@ -1,34 +1,33 @@
 "use client";
 
-import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import { deleteUser } from "firebase/auth";
 import { useAuth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { doc, getFirestore, deleteDoc } from "firebase/firestore";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const DeleteAccount = () => {
   const { auth } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const router = useRouter();
+  const [open, setOpen] = useState(false);
+
 
   const handleDeleteAccount = async () => {
     if (auth && auth.currentUser) {
       try {
-        if (!email || !password) {
-          toast({
-            title: "Error",
-            description: "Please enter your email and password.",
-            variant: "destructive",
-          });
-          return;
-        }
-        const credential = EmailAuthProvider.credential(email, password);
-        await reauthenticateWithCredential(auth.currentUser, credential);
-
         // Delete user data from Firestore
         const db = getFirestore();
         const userDocRef = doc(db, "users", auth.currentUser.uid);
@@ -52,23 +51,24 @@ const DeleteAccount = () => {
   };
 
   return (
-    <div className="flex flex-col gap-2 w-80 mb-4">
-      <Input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <Input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <Button onClick={handleDeleteAccount} variant="destructive">
-        Delete Account
-      </Button>
-    </div>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive">Delete Account</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your account
+            and remove your data from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDeleteAccount}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
