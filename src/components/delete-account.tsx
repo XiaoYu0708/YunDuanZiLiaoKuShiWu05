@@ -1,4 +1,4 @@
-;"use client";
+"use client";
 
 import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { useAuth } from "@/lib/firebase";
