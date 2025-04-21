@@ -1,10 +1,18 @@
-
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { signOut } from "firebase/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Settings } from "lucide-react";
 
 const GRID_SIZE = 20;
 const SNAKE_START = [{ x: 8, y: 8 }];
@@ -128,8 +136,41 @@ const SnakeGame = () => {
     ctx!.fillRect(food.x * GRID_SIZE, food.y * GRID_SIZE, GRID_SIZE, GRID_SIZE);
   };
 
+  const handleLogout = async () => {
+    if (auth) {
+      try {
+        await signOut(auth);
+        router.push("/");
+      } catch (error: any) {
+        console.error("Logout failed:", error);
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen">
+      <div className="absolute top-4 right-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={auth?.currentUser?.photoURL || `https://picsum.photos/48/48?auto=format&amp;fit=crop&amp;q=60&amp;w=48&amp;h=48`} alt={auth?.currentUser?.displayName || "User"} />
+                <AvatarFallback>{auth?.currentUser?.displayName?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+              </Avatar>
+              <span className="sr-only">Open user menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       <canvas
         ref={canvasRef}
         width={GRID_SIZE * GRID_SIZE}
@@ -149,3 +190,5 @@ const SnakeGame = () => {
 };
 
 export default SnakeGame;
+
+    
