@@ -30,6 +30,7 @@ const SnakeGame = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
+  const [newDirection, setNewDirection] = useState({ x: 1, y: 0 });
 
   useEffect(() => {
     if (!auth?.currentUser) {
@@ -61,25 +62,37 @@ const SnakeGame = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      let newDir = { ...direction };
       switch (e.key) {
         case 'ArrowUp':
-          setDirection({ x: 0, y: -1 });
+          newDir = { x: 0, y: -1 };
           break;
         case 'ArrowDown':
-          setDirection({ x: 0, y: 1 });
+          newDir = { x: 0, y: 1 };
           break;
         case 'ArrowLeft':
-          setDirection({ x: -1, y: 0 });
+          newDir = { x: -1, y: 0 };
           break;
         case 'ArrowRight':
-          setDirection({ x: 1, y: 0 });
+          newDir = { x: 1, y: 0 };
           break;
+      }
+
+      // Prevent snake from immediately reversing direction
+      if ((newDir.x !== -direction.x || newDir.y !== -direction.y) &&
+          (newDir.x !== direction.x || newDir.y !== direction.y)) {
+        setNewDirection(newDir);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [direction]);
+
+  useEffect(() => {
+    // Apply the new direction after the key press, but before the next move
+    setDirection(newDirection);
+  }, [newDirection]);
 
   useEffect(() => {
     const gameLoop = () => {
@@ -136,7 +149,7 @@ const SnakeGame = () => {
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
 
-    if (head.x * GRID_SIZE >= canvasWidth || head.x < 0 || head.y * GRID_SIZE >= canvasHeight || head.y < 0) {
+    if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
       return true;
     }
 
@@ -201,6 +214,7 @@ const SnakeGame = () => {
     setSnake(SNAKE_START);
     setFood(FOOD_START);
     setDirection({ x: 1, y: 0 });
+    setNewDirection({x: 1, y: 0});
     setGameOver(false);
     setScore(0);
   };
@@ -258,3 +272,4 @@ const SnakeGame = () => {
 };
 
 export default SnakeGame;
+
