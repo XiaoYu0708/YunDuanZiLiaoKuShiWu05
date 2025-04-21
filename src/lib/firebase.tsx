@@ -85,5 +85,5 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
     </FirebaseContext.Provider>
   );
 }
-
+// Make sure to add your domain to the authorized domains list in the Firebase console.
     
