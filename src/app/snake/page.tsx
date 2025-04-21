@@ -254,4 +254,3 @@ const SnakeGame = () => {
 };
 
 export default SnakeGame;
-
