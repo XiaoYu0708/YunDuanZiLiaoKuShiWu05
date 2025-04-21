@@ -7,29 +7,36 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { doc, getFirestore, deleteDoc } from "firebase/firestore";
 
 const DeleteAccount = () => {
   const { auth } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-    const router = useRouter();
-
+  const router = useRouter();
 
   const handleDeleteAccount = async () => {
     if (auth && auth.currentUser) {
       try {
-          if (!email || !password) {
-              toast({
-                  title: "Error",
-                  description: "Please enter your email and password.",
-                  variant: "destructive",
-              });
-              return;
-          }
+        if (!email || !password) {
+          toast({
+            title: "Error",
+            description: "Please enter your email and password.",
+            variant: "destructive",
+          });
+          return;
+        }
         const credential = EmailAuthProvider.credential(email, password);
         await reauthenticateWithCredential(auth.currentUser, credential);
+
+        // Delete user data from Firestore
+        const db = getFirestore();
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        await deleteDoc(userDocRef);
+
+        // Delete the user account
         await deleteUser(auth.currentUser);
-          router.push("/");
+        router.push("/");
         toast({
           title: "Account deleted!",
           description: "Your account has been successfully deleted.",
@@ -46,18 +53,18 @@ const DeleteAccount = () => {
 
   return (
     <div className="flex flex-col gap-2 w-80 mb-4">
-        <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+      <Input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <Input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
       <Button onClick={handleDeleteAccount} variant="destructive">
         Delete Account
       </Button>
@@ -66,4 +73,3 @@ const DeleteAccount = () => {
 };
 
 export default DeleteAccount;
-
