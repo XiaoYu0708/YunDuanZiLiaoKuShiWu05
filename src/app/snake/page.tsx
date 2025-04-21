@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Settings } from "lucide-react";
+import { doc, getFirestore, updateDoc, getDoc } from "firebase/firestore";
 
 const GRID_SIZE = 20;
 const SNAKE_START = [{ x: 8, y: 8 }];
@@ -37,11 +38,26 @@ const SnakeGame = () => {
   }, [auth, router]);
 
   useEffect(() => {
-    const storedHighScore = localStorage.getItem('highScore');
-    if (storedHighScore) {
-      setHighScore(parseInt(storedHighScore));
-    }
-  }, []);
+    const fetchHighScore = async () => {
+      if (auth?.currentUser) {
+        const db = getFirestore();
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+          setHighScore(docSnap.data().highScore || 0);
+        } else {
+          // If the document doesn't exist, create it
+          await updateDoc(userDocRef, {
+            highScore: 0,
+          });
+          setHighScore(0);
+        }
+      }
+    };
+
+    fetchHighScore();
+  }, [auth?.currentUser]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -91,13 +107,22 @@ const SnakeGame = () => {
   }, [snake, food, direction, gameOver]);
 
   useEffect(() => {
-    if (gameOver) {
-      if (score > highScore) {
-        setHighScore(score);
-        localStorage.setItem('highScore', score.toString());
+    const updateHighScore = async () => {
+      if (gameOver && auth?.currentUser) {
+        if (score > highScore) {
+          const db = getFirestore();
+          const userDocRef = doc(db, "users", auth.currentUser.uid);
+          await updateDoc(userDocRef, {
+            highScore: score,
+          });
+          setHighScore(score);
+        }
       }
-    }
-  }, [gameOver, score, highScore]);
+    };
+
+    updateHighScore();
+  }, [gameOver, score, highScore, auth?.currentUser]);
+
 
   const moveSnake = () => {
     const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
