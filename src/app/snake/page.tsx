@@ -146,9 +146,7 @@ const SnakeGame = () => {
     const canvas = canvasRef.current;
     if (!canvas) return false;
 
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-
+    // Use GRID_SIZE directly for boundary check
     if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
       return true;
     }
@@ -272,4 +270,3 @@ const SnakeGame = () => {
 };
 
 export default SnakeGame;
-
