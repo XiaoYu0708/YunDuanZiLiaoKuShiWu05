@@ -11,9 +11,10 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="text-3xl font-bold mb-6">Welcome to LoginSnake</h1>
       <LoginForm />
-      <Button variant="link" onClick={() => router.push("/register")}>
+      <Button onClick={() => router.push("/register")}>
         Register
       </Button>
     </div>
   );
 }
+
