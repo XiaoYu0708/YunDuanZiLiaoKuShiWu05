@@ -26,7 +26,7 @@ const SettingsPage = () => {
       <ChangePasswordForm />
       <DeleteAccount />
 
-      <Button onClick={() => router.push("/snake")}>
+      <Button className="mt-4" onClick={() => router.push("/snake")}>
         Back to Game
       </Button>
     </div>
@@ -34,3 +34,4 @@ const SettingsPage = () => {
 };
 
 export default SettingsPage;
+
