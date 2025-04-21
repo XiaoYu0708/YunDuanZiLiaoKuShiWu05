@@ -18,6 +18,14 @@ const DeleteAccount = () => {
   const handleDeleteAccount = async () => {
     if (auth && auth.currentUser) {
       try {
+          if (!email || !password) {
+              toast({
+                  title: "Error",
+                  description: "Please enter your email and password.",
+                  variant: "destructive",
+              });
+              return;
+          }
         const credential = EmailAuthProvider.credential(email, password);
         await reauthenticateWithCredential(auth.currentUser, credential);
         await deleteUser(auth.currentUser);
@@ -58,3 +66,4 @@ const DeleteAccount = () => {
 };
 
 export default DeleteAccount;
+
